@@ -9,6 +9,11 @@ export interface DesignationDocument extends Document {
   contact_address: string;
   designation: string;
   department: string;
+  total_Leaves: number;
+  remaining_leaves: number;
+  additional_leaves: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 export enum Department {
   IT = "it",
@@ -65,6 +70,18 @@ const designationSchema = new Schema<DesignationDocument>(
       required: true,
       enum: Object.values(DesignationEnum),
       default: DesignationEnum.FRESHER,
+    },
+    total_Leaves: {
+      type: Number,
+      default: 12,
+    },
+    remaining_leaves: {
+      type: Number,
+      default: 12,
+    },
+    additional_leaves: {
+      type: Number,
+      default: 0,
     },
   },
   {

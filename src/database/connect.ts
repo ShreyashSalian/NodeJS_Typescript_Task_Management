@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 import cron from "node-cron";
 import { addUserAdmin } from "../utils/addAdmin";
-import { Task } from "../models/task.model";
+import {
+  checkTaskStatusAt12AMDaily,
+  updateLeaveBalanceOfEmployee,
+} from "../utils/cronsJobs";
 
 const connectDB = async (): Promise<void> => {
   try {
@@ -14,31 +17,10 @@ const connectDB = async (): Promise<void> => {
     addUserAdmin();
 
     //Cron job to run every day at 12 AM
-    cron.schedule("0 0 * * *", async () => {
-      console.log("Running cron job at 12AM...");
-      try {
-        //Get current data
-        const currentDate = new Date();
-        //Find tasks with a missed due date and update their status;
-        const updatedTasks = await Task.updateMany(
-          {
-            dueDate: { $lt: currentDate },
-            status: { $ne: "completed" }, // Ensure only incomplete tasks are updated.
-          },
-          {
-            $set: {
-              status: "missed", //Update the task to "missed";
-            },
-          }
-        );
-        console.log(
-          `Updated ${updatedTasks.modifiedCount} tasks with missed due dates.`
-        );
-      } catch (err: any) {
-        console.log("Error running the cron jon", err);
-        process.exit(1);
-      }
-    });
+    cron.schedule("0 0 * * *", checkTaskStatusAt12AMDaily);
+
+    // Schedule the job to run on the 1st of every month at midnight
+    cron.schedule("0 0 1 * *", updateLeaveBalanceOfEmployee);
   } catch (err: any) {
     console.log(`Can not connect to mongoDB : `, err);
     process.exit(1);

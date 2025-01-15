@@ -1,2 +1,11 @@
-# NodeJS_Typescript_Task_Management
-This is task management project using the nodejs and typescript
+# Task management
+
+This is typescript with nodejs project
+
+## Deployment
+
+To deploy this project run
+
+```bash
+  npm run start
+```
