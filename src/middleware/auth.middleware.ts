@@ -45,8 +45,7 @@ export const verifyUser = asyncHandler(
 
       const decodedToken = jwt.verify(token, secretKey) as JwtPayload;
       // const userId = await User.findById(decodedToken?._id);
-      console.log(decodedToken, "decodedToken-----------");
-      console.log(token, "token--------");
+
       const userId = await Login.findOne({
         $and: [
           {
@@ -60,7 +59,6 @@ export const verifyUser = asyncHandler(
           },
         ],
       });
-      console.log(userId, "userDetails------------------");
 
       if (!userId) {
         return res.status(401).json({

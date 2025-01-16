@@ -639,7 +639,6 @@ export const listAllTask = asyncHandler(
             preserveNullAndEmptyArrays: true,
           },
         },
-
         {
           $lookup: {
             from: "subcomments",
@@ -649,35 +648,21 @@ export const listAllTask = asyncHandler(
             pipeline: [
               {
                 $lookup: {
-                  from: "users",
-                  localField: "commentDetails.subComments.userId",
+                  from: "users", // Fetching subcomment author details
+                  localField: "userId",
                   foreignField: "_id",
-                  as: "subCommentAuthorDetails",
+                  as: "authorDetails",
+                },
+              },
+              {
+                $unwind: {
+                  path: "$authorDetails", // Unwind author details for each subcomment
+                  preserveNullAndEmptyArrays: true,
                 },
               },
             ],
           },
         },
-        // {
-        //   $unwind: {
-        //     path: "$commentDetails.subComments",
-        //     preserveNullAndEmptyArrays: true,
-        //   },
-        // },
-        // {
-        //   $lookup: {
-        //     from: "users",
-        //     localField: "commentDetails.subComments.userId",
-        //     foreignField: "_id",
-        //     as: "commentDetails.subComments.subCommentAuthorDetails",
-        //   },
-        // },
-        // {
-        //   $unwind: {
-        //     path: "$commentDetails.subComments.subCommentAuthorDetails",
-        //     preserveNullAndEmptyArrays: true,
-        //   },
-        // },
         {
           $project: {
             _id: 1,
@@ -706,13 +691,13 @@ export const listAllTask = asyncHandler(
             "commentDetails.subComments._id": 1,
             "commentDetails.subComments.content": 1,
             "commentDetails.subComments.userId": 1,
-            "subCommentAuthorDetails._id": 1,
-            "subCommentAuthorDetails.fullName": 1,
-            "subCommentAuthorDetails.email": 1,
-            "subCommentAuthorDetails.userName": 1,
+            "commentDetails.subComments.authorDetails._id": 1,
+            "commentDetails.subComments.authorDetails.fullName": 1,
+            "commentDetails.subComments.authorDetails.userName": 1,
+            "commentDetails.subComments.authorDetails.email": 1,
           },
         },
-        // Add search, sorting, and pagination
+        // Add search, sorting, and pagination if needed
         ...buildSearchPaginationSortingPipeline(
           searchFields,
           search as string,
@@ -721,7 +706,7 @@ export const listAllTask = asyncHandler(
           currentPage,
           pageSize
         ),
-      ]; //I want to display multiple subcomment inside the single comment. I am not able to display multiple subcomment
+      ];
 
       const taskAggregation = await Task.aggregate(pipeline);
 
