@@ -26,25 +26,23 @@ export const addNewSubComment = asyncHandler(
       }
 
       // Create a new subcomment
-      const subComment = new SubComment({
+      const subComment = await SubComment.create({
         commentId: commentObjectId,
         userId: userObjectId,
         content,
       });
 
-      const savedSubComment = await subComment.save();
-
       // Update the parent comment
-      const updatedComment = await Comment.findByIdAndUpdate(
+      await Comment.findByIdAndUpdate(
         commentObjectId,
-        { $push: { subCommentsIds: savedSubComment._id } }, // _id is already an ObjectId
+        { $push: { subCommentsIds: subComment._id } }, // _id is already an ObjectId
         { new: true }
       );
 
       return res.status(201).json({
         status: 201,
         message: "Subcomment added successfully.",
-        data: savedSubComment,
+        data: subComment,
         error: null,
       });
     } catch (err: any) {

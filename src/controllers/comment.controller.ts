@@ -6,6 +6,7 @@ import {
 } from "../utils/function";
 import { Request, Response } from "express";
 import { PipelineStage } from "mongoose";
+import { Task } from "../models/task.model";
 //Used to add the comment
 export const addNewComment = asyncHandler(
   async (req: Request, res: Response) => {
@@ -16,6 +17,12 @@ export const addNewComment = asyncHandler(
       author,
       content,
     });
+    // Update the parent comment
+    await Task.findByIdAndUpdate(
+      taskId,
+      { $push: { commentsIds: commentCreation._id } }, // _id is already an ObjectId
+      { new: true }
+    );
 
     if (commentCreation) {
       return res.status(200).json({
@@ -54,6 +61,7 @@ export const updateComment = asyncHandler(
         new: true,
       }
     );
+
     if (updateCommentDetails) {
       return res.status(200).json({
         status: 200,

@@ -10,6 +10,7 @@ import { Project } from "../models/project.model";
 import path from "path";
 import fs from "fs";
 import { Redis } from "ioredis";
+import { pipeline } from "stream";
 // Typing for Express Request with multiple file uploads
 interface RequestWithFiles extends Request {
   files: {
@@ -613,8 +614,8 @@ export const listAllTask = asyncHandler(
         {
           $lookup: {
             from: "comments",
-            localField: "_id",
-            foreignField: "taskId",
+            localField: "commentsIds",
+            foreignField: "_id",
             as: "commentDetails",
           },
         },
@@ -638,34 +639,45 @@ export const listAllTask = asyncHandler(
             preserveNullAndEmptyArrays: true,
           },
         },
+
         {
           $lookup: {
             from: "subcomments",
-            localField: "commentDetails._id",
-            foreignField: "commentId",
-            as: "commentDetails.subComments",
-          },
-        },
-        {
-          $unwind: {
-            path: "$commentDetails.subComments",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "commentDetails.subComments.userId",
+            localField: "commentDetails.subCommentsIds",
             foreignField: "_id",
-            as: "commentDetails.subComments.subCommentAuthorDetails",
+            as: "commentDetails.subComments",
+            pipeline: [
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "commentDetails.subComments.userId",
+                  foreignField: "_id",
+                  as: "subCommentAuthorDetails",
+                },
+              },
+            ],
           },
         },
-        {
-          $unwind: {
-            path: "$commentDetails.subComments.subCommentAuthorDetails",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
+        // {
+        //   $unwind: {
+        //     path: "$commentDetails.subComments",
+        //     preserveNullAndEmptyArrays: true,
+        //   },
+        // },
+        // {
+        //   $lookup: {
+        //     from: "users",
+        //     localField: "commentDetails.subComments.userId",
+        //     foreignField: "_id",
+        //     as: "commentDetails.subComments.subCommentAuthorDetails",
+        //   },
+        // },
+        // {
+        //   $unwind: {
+        //     path: "$commentDetails.subComments.subCommentAuthorDetails",
+        //     preserveNullAndEmptyArrays: true,
+        //   },
+        // },
         {
           $project: {
             _id: 1,
@@ -686,6 +698,7 @@ export const listAllTask = asyncHandler(
             "commentDetails._id": 1,
             "commentDetails.content": 1,
             "commentDetails.author": 1,
+            "commentDetails.subCommentsIds": 1,
             "commentDetails.authorDetails._id": 1,
             "commentDetails.authorDetails.fullName": 1,
             "commentDetails.authorDetails.userName": 1,
@@ -693,10 +706,10 @@ export const listAllTask = asyncHandler(
             "commentDetails.subComments._id": 1,
             "commentDetails.subComments.content": 1,
             "commentDetails.subComments.userId": 1,
-            "commentDetails.subComments.subCommentAuthorDetails._id": 1,
-            "commentDetails.subComments.subCommentAuthorDetails.fullName": 1,
-            "commentDetails.subComments.subCommentAuthorDetails.email": 1,
-            "commentDetails.subComments.subCommentAuthorDetails.userName": 1,
+            "subCommentAuthorDetails._id": 1,
+            "subCommentAuthorDetails.fullName": 1,
+            "subCommentAuthorDetails.email": 1,
+            "subCommentAuthorDetails.userName": 1,
           },
         },
         // Add search, sorting, and pagination
