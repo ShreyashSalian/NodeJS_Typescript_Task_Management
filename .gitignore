@@ -49,6 +49,9 @@ public/css
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
+#for utils
+utils/*
+
 # TypeScript cache
 *.tsbuildinfo
 

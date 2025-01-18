@@ -12,7 +12,7 @@ export interface UserDocument extends Document {
   profileImage?: string;
   password: string;
   role: string;
-  isDeleted: Boolean;
+  isDeleted: boolean;
   refreshToken?: string;
   resetPasswordToken?: string;
   resetPasswordTokenExpiry?: Date;
