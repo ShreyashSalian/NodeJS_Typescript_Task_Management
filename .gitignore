@@ -50,7 +50,7 @@ public/css
 web_modules/
 
 #for utils
-utils/*
+utils/
 
 # TypeScript cache
 *.tsbuildinfo

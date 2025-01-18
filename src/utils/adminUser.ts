@@ -6,6 +6,7 @@ interface AdminUser {
   role: string;
 }
 
+//Admin list
 export const adminUserList: AdminUser[] = [
   {
     fullName: "Shreyash Salian",
