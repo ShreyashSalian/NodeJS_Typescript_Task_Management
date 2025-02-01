@@ -26,6 +26,8 @@ app.use(express.static(path.join(path.resolve(), "public")));
 app.use("/attachment", express.static("public/attachment"));
 app.use(cookieParser());
 
+console.log(`The app is running at : http://localhost:${PORT}`);
+
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
