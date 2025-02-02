@@ -122,47 +122,35 @@ userSchema.methods.comparePassword = async function (
 
 //generate jwt access token------------------------
 
+// Generate JWT Access Token
 userSchema.methods.generateAccessToken = function (): string {
   const user = this as UserDocument;
-  const secret = process.env.ACCESS_TOKEN;
+  const secret: jwt.Secret = process.env.ACCESS_TOKEN as string;
+
   if (!secret) {
-    throw new Error(
-      "ACCESS_TOKEN secret is not defined in environment variables"
-    );
+    throw new Error("ACCESS_TOKEN is not defined in environment variables");
   }
+
   return jwt.sign(
-    {
-      _id: user._id,
-      userName: user.userName,
-      email: user.email,
-      fullName: user.fullName,
-    },
+    { _id: user._id, userName: user.userName, email: user.email },
     secret,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1h", // Fallback expiry of 1 hour
-    }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1h", algorithm: "HS256" }
   );
 };
 
+// Generate JWT Refresh Token
 userSchema.methods.generateRefreshToken = function (): string {
   const user = this as UserDocument;
-  const secret = process.env.REFRESH_TOKEN;
+  const secret: jwt.Secret = process.env.REFRESH_TOKEN as string;
+
   if (!secret) {
-    throw new Error(
-      "Refresh token secret is not defined in environment variables"
-    );
+    throw new Error("REFRESH_TOKEN is not defined in environment variables");
   }
+
   return jwt.sign(
-    {
-      _id: user._id,
-      userName: user.userName,
-      email: user.email,
-      fullName: user.fullName,
-    },
+    { _id: user._id, userName: user.userName, email: user.email },
     secret,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "10d",
-    }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "10d", algorithm: "HS256" }
   );
 };
 

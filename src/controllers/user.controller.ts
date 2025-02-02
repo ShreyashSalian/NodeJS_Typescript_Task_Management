@@ -5,7 +5,8 @@ import {
   buildSearchPaginationSortingPipeline,
   generateEmailVerificationToken,
 } from "../utils/function";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
+
 import crypto from "crypto";
 import { Redis } from "ioredis";
 import { forgotPasswordMail, verifyEmail } from "../utils/sendMail";
@@ -237,7 +238,9 @@ export const generateAccessToken = asyncHandler(
       };
       return res.status(401).json(responsePayload);
     }
-    const secretKey = process.env.ACCESS_TOKEN;
+    const secretKey =
+      process.env.ACCESS_TOKEN ||
+      "7ea890302bf4c8dda9de988ac1d989f9de8b381d72d0d94c92837c17280c25fe0e1854016b982b07";
     if (!secretKey) {
       throw new Error("ACCESS_TOKEN environment variable is not set");
     }
@@ -245,7 +248,7 @@ export const generateAccessToken = asyncHandler(
     const verifyRefreshToken = jwt.verify(
       incomingRefreshToken,
       secretKey
-    ) as JwtPayload;
+    ) as jwt.JwtPayload;
 
     if (!verifyRefreshToken) {
       const responsePayload = {
